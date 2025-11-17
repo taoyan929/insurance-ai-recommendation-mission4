@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useRef, useEffect } from "react";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const chatWindowRef = useRef(null);
+  const [messages, setMessages] = useState([
+    { sender: "tina", text: "Hi, I'm Tina!🥰" },
+  ]);
+  const [input, setInput] = useState("");
+  
+  //Use useEffect to listen for messages and scroll each time there is an update
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  function handleSubmit() {
+    if (!input.trim()) return;
+
+    setMessages((prev) => [...prev, { sender: "user", text: input }]);
+
+    setInput("");
+
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { sender: "tina", text: "Let me think..."}]);
+    }, 500)
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <div className="chat-window" ref={chatWindowRef}>
+        {messages.map((message, index) => {
+          // Use the different className to render different style
+          return <div key={index} className={message.sender === "user" ? "message user" : "message tina"}>
+            {message.text}
+            {message.user}
+                </div>;
+        })}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+
+      <div className="input-area">
+        <input type="text" value={input} onChange={(e) => setInput(e.target.value)}/>
+        <button onClick={handleSubmit}>Send</button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

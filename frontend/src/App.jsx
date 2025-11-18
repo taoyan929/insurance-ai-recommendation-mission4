@@ -16,18 +16,21 @@ function App() {
     }
   }, [messages]);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (!input.trim()) return;
 
     setMessages((prev) => [...prev, { sender: "user", text: input }]);
-
     setInput("");
 
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { sender: "tina", text: "Let me think..."}]);
-    }, 500)
+    // Connect from frontend to backend
+    const response = await fetch("http://localhost:4000/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: input })
+    });
+    const data = await response.json();
+    setMessages((prev) => [...prev, { sender: "tina", text: data.reply }]);
   }
-
   return (
     <>
       <div className="chat-window" ref={chatWindowRef}>
@@ -35,7 +38,6 @@ function App() {
           // Use the different className to render different style
           return <div key={index} className={message.sender === "user" ? "message user" : "message tina"}>
             {message.text}
-            {message.user}
                 </div>;
         })}
       </div>

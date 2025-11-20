@@ -9,6 +9,12 @@ function App() {
   const [sessionId, setSessionId] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
 
+  // Smart auto-switch base URL
+  const BASE_URL =
+    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+      ? "http://localhost:4000"
+      : "http://backend:4000";
+
   //Use useEffect to listen for messages and scroll each time there is an update
   useEffect(() => {
     if (chatWindowRef.current) {
@@ -19,7 +25,7 @@ function App() {
   //When component loads -> start a new session
   useEffect(() => {
     async function startSession() {
-      const response = await fetch("http://localhost:4000/api/chat/start", {
+      const response = await fetch(`${BASE_URL}/api/chat/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -32,7 +38,7 @@ function App() {
     }
 
     startSession();
-  }, []);
+  }, [BASE_URL]);
 
   async function handleSubmit() {
     if (!input.trim() || !sessionId) return;
@@ -47,7 +53,7 @@ function App() {
 
     try {
       // Call backend with sessionId + message
-      const response = await fetch("http://localhost:4000/api/chat", {
+      const response = await fetch(`${BASE_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, message: userMessage }),
